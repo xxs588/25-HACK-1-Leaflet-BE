@@ -1,1 +1,13 @@
-*.env
+# Docker
+.env
+docker-compose.override.yml
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# 临时文件
+/tmp
