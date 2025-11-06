@@ -2,9 +2,12 @@ package controller
 
 import (
 	"net/http"
-	"us/config"
-	"us/middlewares"
-	"us/model"
+
+	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/config"
+	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/consts"
+	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/middlewares"
+	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/model"
+	"github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 )
@@ -44,6 +47,11 @@ func RegisterUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "注册成功", "user": req.Username})
+	consts.Logger.WithFields(logrus.Fields{
+		"username": req.Username,
+		"user_id":  user.ID,
+		"action":   "user_register_success",
+	}).Info("用户注册成功")
 }
 
 // 用户登录
@@ -77,5 +85,10 @@ func LoginUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "登录成功", "token": token})
+	// 记录成功事件
+	consts.Logger.WithFields(logrus.Fields{
+		"username": req.Username,
+		"user_id":  user.ID,
+		"action":   "user_login_success",
+	}).Info("用户登录成功")
 }
-

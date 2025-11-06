@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # Go应用服务
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.example
+
+    depends_on:
+      - mariadb
+    restart: unless-stopped
+
+  # MySQL数据库服务
+  mariadb:
+    image: mariadb:10.11
+    ports:
+      - "3339:3306"
+    env_file:
+      - .env.example
+    volumes:
+      - mariadb_data:/var/lib/mariadb
+    #command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+
+  # 开发环境数据库（可选）
+  #mysql-dev:
+    #image: mariadb:10.11
+    #ports:
+    #  - "3307:3306"
+    #environment:
+      #- MYSQL_ROOT_PASSWORD=dev_password
+      #- MYSQL_DATABASE=hackweek_db_dev
+    #volumes:
+      #- mysql_dev_data:/var/lib/mysql
+    #command: --default-authentication-plugin=mysql_native_password
+    #restart: unless-stopped
+
+volumes:
+  mariadb_data:
