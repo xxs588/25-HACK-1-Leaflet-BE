@@ -2,9 +2,10 @@ package controller
 
 import (
 	"net/http"
-	"us/config"
-	"us/middlewares"
-	"us/model"
+
+	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/config"
+	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/middlewares"
+	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -78,4 +79,3 @@ func LoginUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "登录成功", "token": token})
 }
-
