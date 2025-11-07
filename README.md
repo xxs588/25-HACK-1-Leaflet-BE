@@ -1,6 +1,6 @@
 # 25-HACK-1-Leaflet-BE
 
-一个基于Go和Gin框架的后端项目，支持用户注册和登录功能。
+一个基于 Go 和 Gin 框架的后端项目，支持用户注册和登录功能。
 
 ## 项目结构
 
@@ -19,10 +19,11 @@
 └── .env                 # 环境配置（不提交）
 ```
 
-## Docker化部署
+## Docker 化部署
 
 ### 开发环境
-```bash
+
+````bash
 # 复制配置模板
 cp .env.example .env
 
@@ -40,15 +41,17 @@ docker-compose up -d
 
 # 或者直接使用
 go run main.go
-```
+````
 
 ## 协作开发说明
 
 ### 1. 环境配置
-- 使用`.env.example`作为配置模板
-- 个人`.env`文件不提交到版本控制
+
+-   使用`.env.example`作为配置模板
+-   个人`.env`文件不提交到版本控制
 
 ### 2. 启动应用
+
 ```bash
 # 方式一：使用Docker
 docker-compose up -d
@@ -57,7 +60,7 @@ docker-compose up -d
 go run main.go
 ```
 
-## API接口
+## API 接口
 
-- `POST /register` - 用户注册
-- `POST /login` - 用户登录
+-   `POST /register` - 用户注册
+-   `POST /login` - 用户登录

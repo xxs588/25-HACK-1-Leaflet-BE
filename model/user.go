@@ -24,35 +24,35 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
-// 校园场景设置和标签选择
-type Status struct {
-	gorm.Model
-	UserID    int `gorm:"index:idx_user_time"` // 用户ID uint类型非负整数，索引
-	TagID     int
-	MoodType  string //情绪气泡类型
-	Content   string `gorm:"type:text;size: 100"` //限制100字
-	LeafColor string
-}
-
+// 标签表（校园场景标签）
 type Tag struct {
 	gorm.Model
-	TagName string `gorm:"unique;not null"` //标签名称
+	TagName string `json:"tag_name" gorm:"unique;not null"` // 标签名称
 }
 
-// 创建状态请求
-type CreateStatusRequest struct {
-	MoodType  string `json:"mood_type" binding:"required"`
-	TagID     int    `json:"tag_id" binding:"required"`
-	Content   string `json:"content" binding:"required"`
-	LeafColor string `json:"leaf_color" binding:"required"`
+// 心情状态表
+type Status struct {
+	gorm.Model
+	UserID    uint   `json:"user_id" gorm:"index:idx_user_time;not null"` // 用户ID
+	TagID     uint   `json:"tag_id" binding:"required" gorm:"not null"`   // 标签ID (1=困倦的早八, 2=自习室刷题, 等等)
+	Content   string `json:"content" binding:"required" gorm:"type:text"` // 内容
+	LeafColor string `json:"leaf_color"`                                  // 树叶颜色（自动生成）
 }
 
-// 更新状态请求
-type UpdateStatusRequest struct {
-	MoodType  string `json:"mood_type" binding:"required"`
-	TagID     int    `json:"tag_id" binding:"required"`
-	Content   string `json:"content" binding:"required"`
-	LeafColor string `json:"leaf_color" binding:"required"`
+// 以下为情绪互动模块
+type Problem struct {
+	gorm.Model
+	SenderName string `json:"sender_name" gorm:"not null"` // 外键，关联用户发送人
+	UserID     uint   `json:"user_id" gorm:"not null"`     // 鉴权用户ID
+	Context    string `json:"context" gorm:"not null"`     // 问题
+	Response   uint   `json:"response" gorm:"not null"`    // 回应次数
+}
+
+type Solve struct {
+	gorm.Model
+	UserID    uint   `json:"user_id" gorm:"not null"`    // 外键，关联用户解决者
+	Solution  string `json:"solution" gorm:"not null"`   //解决方案
+	ProblemID string `json:"problem_id" gorm:"not null"` //问题ID
 }
 
 // 密码加密
