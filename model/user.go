@@ -39,6 +39,20 @@ type Solve struct {
 	Solution  string `json:"solution" gorm:"not null"`   //解决方案
 	ProblemID string   `json:"problem_id" gorm:"not null"` //问题ID
 }
+// 鼓励话语 早 中 晚
+
+type EncouragementMorning struct {
+	gorm.Model
+	Message string `json:"message" gorm:"not null"` // 鼓励话语
+}
+type EncouragementAfternoon struct {
+	gorm.Model
+	Message string `json:"message" gorm:"not null"` // 鼓励话语
+}
+type EncouragementEvening struct {
+	gorm.Model
+	Message string `json:"message" gorm:"not null"` // 鼓励话语
+}
 
 // 密码加密
 func (u *User) HashPassword(password string) (err error) {
