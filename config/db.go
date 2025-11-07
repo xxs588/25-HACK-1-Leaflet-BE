@@ -42,8 +42,7 @@ func ConnectDatabase() {
 		panic("数据库连接失败: " + err.Error())
 	}
 	// 自动迁移数据库模式 (创建表)
-	// 先创建被引用的表，再创建有外键的表
-	err = DB.AutoMigrate(&model.User{}, &model.Tag{}, &model.Problem{}, &model.Solve{}, &model.Status{})
+	err = DB.AutoMigrate(&model.User{})
 	if err != nil {
 		log.Fatal("数据库迁移失败:", err)
 	}
