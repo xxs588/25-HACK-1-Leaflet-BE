@@ -37,7 +37,7 @@ type Solve struct {
 	gorm.Model
 	UserID    uint   `json:"user_id" gorm:"not null"`    // 外键，关联用户解决者
 	Solution  string `json:"solution" gorm:"not null"`   //解决方案
-	ProblemID string `json:"problem_id" gorm:"not null"` //问题ID
+	ProblemID string   `json:"problem_id" gorm:"not null"` //问题ID
 }
 
 // 密码加密

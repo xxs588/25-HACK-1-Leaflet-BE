@@ -18,4 +18,6 @@ func Routes(rg *gin.Engine) {
 	rg.DELETE("/mind/:id", middlewares.JWTAuthMiddleware(), controller.DeleteProblem)
 	rg.POST("/mind/", middlewares.JWTAuthMiddleware(), controller.UploadProblem)
 	rg.GET("/mind", middlewares.JWTAuthMiddleware(), controller.GetProblems)
+	rg.POST("/solve/:id", middlewares.JWTAuthMiddleware(), controller.UploadSolve)
+	rg.GET("/solve", middlewares.JWTAuthMiddleware(), controller.GetSolves)
 }
