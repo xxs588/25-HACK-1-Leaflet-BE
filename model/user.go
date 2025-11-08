@@ -65,6 +65,7 @@ type EncouragementEvening struct {
 	Message string `json:"message" gorm:"not null"` // 鼓励话语
 }
 
+// 头像结构体
 type ProfilePicture struct {
 	ID  uint   `json:"id"`
 	URL string `json:"url"`
