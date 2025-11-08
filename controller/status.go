@@ -123,10 +123,15 @@ func GetStatusesByTag(c *gin.Context) {
 
 // 查询个人所有记录
 func GetStatus(c *gin.Context) {
-	userID := c.Param("user_id")
+	currentUserID, exists := c.Get("user_id")
+
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "未登录或者令牌无效"})
+		return
+	}
 	var status []model.Status
-	if err := config.DB.Where("user_id = ?", userID).Find(&status).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "用户未找到"})
+	if err := config.DB.Where("user_id = ?", currentUserID).Order("created_at desc").Find(&status).Error; err != nil {
+		c.JSON(http.StatusOK, gin.H{"status": "[]model.Status{}"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": status})
@@ -216,6 +221,7 @@ func UpdateStatus(c *gin.Context) {
 
 	status.Content = req.Content
 	status.TagID = req.TagID
+	status.LeafColor = determineLeafColor(req.TagID)
 	if err := config.DB.Save(&status).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新状态失败", "details": err.Error()})
 		consts.Logger.WithFields(logrus.Fields{
