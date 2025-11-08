@@ -23,4 +23,7 @@ func Routes(rg *gin.Engine) {
 	rg.DELETE("/status/:id", middlewares.JWTAuthMiddleware(), controller.DeleteStatus)
 	rg.GET("/status/by_user/:user_id", middlewares.JWTAuthMiddleware(), controller.GetStatus)
 	rg.PUT("/status/:id", middlewares.JWTAuthMiddleware(), controller.UpdateStatus)
+	rg.POST("/solve/:id", middlewares.JWTAuthMiddleware(), controller.UploadSolve)
+	rg.GET("/solve", middlewares.JWTAuthMiddleware(), controller.GetSolves)
+	rg.GET("/encouragements", controller.GetEncouragements)
 }

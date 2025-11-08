@@ -47,7 +47,21 @@ type Solve struct {
 	gorm.Model
 	UserID    uint   `json:"user_id" gorm:"not null"`    // 外键，关联用户解决者
 	Solution  string `json:"solution" gorm:"not null"`   //解决方案
-	ProblemID string `json:"problem_id" gorm:"not null"` //问题ID
+	ProblemID string   `json:"problem_id" gorm:"not null"` //问题ID
+}
+// 鼓励话语 早 中 晚
+
+type EncouragementMorning struct {
+	gorm.Model
+	Message string `json:"message" gorm:"not null"` // 鼓励话语
+}
+type EncouragementAfternoon struct {
+	gorm.Model
+	Message string `json:"message" gorm:"not null"` // 鼓励话语
+}
+type EncouragementEvening struct {
+	gorm.Model
+	Message string `json:"message" gorm:"not null"` // 鼓励话语
 }
 
 // 密码加密
