@@ -111,14 +111,19 @@ func DeleteStatus(c *gin.Context) {
 	statusID := c.Param("id")
 	var status model.Status
 	if err := config.DB.Where("id = ?", statusID).First(&status).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "状态未找到"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "个人心情记录状态未找到"})
+		return
+	}
+	//添加权限判断，避免用户删除他人的状态
+	if status.UserID != c.GetUint("user_id") {
+		c.JSON(http.StatusForbidden, gin.H{"error": "无权限删除此个人心情记录状态"})
 		return
 	}
 	if err := config.DB.Delete(&status).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除状态失败", "details": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "个人心情记录状态删除失败", "details": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "状态删除成功"})
+	c.JSON(http.StatusOK, gin.H{"message": "个人心情记录状态删除成功"})
 }
 
 // 编辑状态（这个id还是表里面这个记录的ID）
@@ -135,6 +140,13 @@ func UpdateStatus(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "没找到这条记录"})
 		return
 	}
+
+	//添加权限判断，避免用户修改他人的状态
+	if status.UserID != c.GetUint("user_id") {
+		c.JSON(http.StatusForbidden, gin.H{"error": "无权限编辑此个人心情记录状态"})
+		return
+	}
+
 	status.Content = req.Content
 	status.TagID = req.TagID
 	if err := config.DB.Save(&status).Error; err != nil {
