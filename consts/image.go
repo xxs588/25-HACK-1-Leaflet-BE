@@ -1,10 +1,5 @@
 package consts
 
-type ProfilePicture struct {
-	ID  uint   `json:"id"`
-	URL string `json:"url"`
-}
-
 // 之后换图片URL
 var ProfilePictures = []ProfilePicture{
 	{ID: 1, URL: "https://example.com/images/profile1.png"},
