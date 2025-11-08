@@ -1,11 +1,13 @@
 package consts
 
-import (
-	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/model"
-)
+// 头像结构体
+type PresetAvatar struct {
+	ID  uint   `json:"id"`
+	URL string `json:"url"`
+}
 
 // 之后换图片URL
-var ProfilePictures = []model.ProfilePicture{
+var ProfilePictures = []PresetAvatar{
 	{ID: 1, URL: "https://example.com/images/profile1.png"},
 	{ID: 2, URL: "https://example.com/images/profile2.png"},
 	{ID: 3, URL: "https://example.com/images/profile3.png"},

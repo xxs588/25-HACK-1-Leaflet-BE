@@ -89,6 +89,7 @@ func CreateStatusEntry(c *gin.Context) {
 		Content:   req.Content,
 		Count:     consecutiveDays, // 使用连续天数
 	}) //创建一个新的状态，把他存进数据库
+
 	if status.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "心情状态保存失败", "details": status.Error.Error()})
 		consts.Logger.WithFields(logrus.Fields{
