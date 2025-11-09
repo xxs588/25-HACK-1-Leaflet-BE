@@ -8,22 +8,39 @@ import (
 )
 
 func Routes(rg *gin.Engine) {
-
+	// 公开路由
 	rg.POST("/register", controller.RegisterUser)
 	rg.POST("/login", controller.LoginUser)
-	// 受保护的路由示例（要鉴权的路由）
-	// rg.GET("/xxxx", middlewares.JWTAuthMiddleware(), controller.xxxx)
-	// 注意：带参数的路由应该在无参数路由之前定义，避免路由冲突
-	rg.PUT("/mind/:id", middlewares.JWTAuthMiddleware(), controller.ChangeProblem)
-	rg.DELETE("/mind/:id", middlewares.JWTAuthMiddleware(), controller.DeleteProblem)
-	rg.POST("/mind/", middlewares.JWTAuthMiddleware(), controller.UploadProblem)
-	rg.GET("/mind", middlewares.JWTAuthMiddleware(), controller.GetProblems)
-	rg.POST("/status", middlewares.JWTAuthMiddleware(), controller.CreateStatusEntry)
-	rg.GET("/status/by_tag/:tag_id", middlewares.JWTAuthMiddleware(), controller.GetStatusesByTag)
-	rg.DELETE("/status/:id", middlewares.JWTAuthMiddleware(), controller.DeleteStatus)
-	rg.GET("/status/by_user/:user_id", middlewares.JWTAuthMiddleware(), controller.GetStatus)
-	rg.PUT("/status/:id", middlewares.JWTAuthMiddleware(), controller.UpdateStatus)
-	rg.POST("/solve/:id", middlewares.JWTAuthMiddleware(), controller.UploadSolve)
-	rg.GET("/solve", middlewares.JWTAuthMiddleware(), controller.GetSolves)
 	rg.GET("/encouragements", controller.GetEncouragements)
+
+	// 需要JWT认证的路由组
+	auth := rg.Group("/")
+	auth.Use(middlewares.JWTAuthMiddleware())
+	{
+		// Mind 相关路由
+		mind := auth.Group("/mind")
+		{
+			mind.POST("/", controller.UploadProblem)
+			mind.GET("", controller.GetProblems)
+			mind.PUT("/:id", controller.ChangeProblem)
+			mind.DELETE("/:id", controller.DeleteProblem)
+		}
+
+		// Status 相关路由
+		status := auth.Group("/status")
+		{
+			status.POST("", controller.CreateStatusEntry)
+			status.GET("/by_tag/:tag_id", controller.GetStatusesByTag)
+			status.GET("/by_user/:user_id", controller.GetStatus)
+			status.PUT("/:id", controller.UpdateStatus)
+			status.DELETE("/:id", controller.DeleteStatus)
+		}
+
+		// Solve 相关路由
+		solve := auth.Group("/solve")
+		{
+			solve.POST("/:id", controller.UploadSolve)
+			solve.GET("", controller.GetSolves)
+		}
+	}
 }
