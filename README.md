@@ -226,12 +226,6 @@ git commit -m "docs: 更新文档"
 git commit -m "refactor: 重构代码"
 ```
 
-### 分支管理
-- `main` - 生产环境分支
-- `develop` - 开发分支
-- `feature/*` - 功能分支
-- `hotfix/*` - 紧急修复分支
-
 ### 环境变量说明
 
 | 变量名 | 说明 | 示例值 |
