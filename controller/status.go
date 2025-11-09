@@ -55,37 +55,36 @@ func CreateStatusEntry(c *gin.Context) {
 	} //绑定请求参数
 	location, _ := time.LoadLocation("Asia/Shanghai")
 	now := time.Now().In(location)
-	todayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, location) //获取今天的开始时间，避免说要距上一次24小时才能发状态
+	todayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, location) //获取今天的开始时间，用于判断连续天数
 
-	var existingStatus model.Status //声明一个状态变量
+	var sumcont int64
+	config.DB.Model(&model.Status{}).Where("user_id = ?", currentUserID).Count(&sumcont)
 
-	err := config.DB.Where("user_id = ? AND created_at >= ?", currentUserID, todayStart).First(&existingStatus).Error //数据库里面查找存到真实用户id
+	leafColor := determineLeafColor(req.TagID) //根据标签ID决定树叶颜色
+
+	// 计算连续记录天数
+	var consecutiveDays int64 = 1 // 默认是第1天
+	yesterdayStart := todayStart.Add(-24 * time.Hour)
+
+	var yesterdayStatus model.Status
+	// 查找昨天的记录
+	err := config.DB.Where("user_id = ? AND created_at >= ? AND created_at < ?", currentUserID, yesterdayStart, todayStart).Order("created_at DESC").First(&yesterdayStatus).Error
 
 	if err == nil {
-		c.JSON(http.StatusConflict, gin.H{"message": "今日状态已提交"}) //如果查到了就说明今天提交过了就返回冲突
-		return
+		// 昨天有记录，连续天数+1
+		consecutiveDays = int64(yesterdayStatus.Count) + 1
 	}
-	leafColor := determineLeafColor(req.TagID) //根据标签ID决定树叶颜色
-	var count int64
-	err = config.DB.Model(&model.Status{}).Where("user_id = ?", currentUserID).Count(&count).Error
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "无法获取状态计数", "details": err.Error()})
-		consts.Logger.WithFields(logrus.Fields{
-			"username": user.Username,
-			"user_id":  user.ID,
-			"action":   "create_status_count_error",
-			"error":    err.Error(),
-		}).Error("获取状态计数失败")
-		return
-	}
+	// 如果没有昨天的记录（err != nil），consecutiveDays 保持为 1（重新开始计数）
 
 	status := config.DB.Create(&model.Status{
-		UserID:    currentUserID,
-		TagID:     req.TagID,
-		LeafColor: leafColor,
-		Content:   req.Content,
-		Count:     count + 1,
+		UserID:         currentUserID,
+		TagID:          req.TagID,
+		LeafColor:      leafColor,
+		Content:        req.Content,
+		Count:          consecutiveDays, // 连续连续天数
+		AllRecordCount: uint(sumcont) + 1,
 	}) //创建一个新的状态，把他存进数据库
+
 	if status.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "心情状态保存失败", "details": status.Error.Error()})
 		consts.Logger.WithFields(logrus.Fields{
@@ -96,7 +95,10 @@ func CreateStatusEntry(c *gin.Context) {
 		}).Error("心情状态保存失败")
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "状态提交成功"}) //返回成功
+	c.JSON(http.StatusOK, gin.H{
+		"message":          "状态提交成功",
+		"all_record_count": uint(sumcont) + 1,
+	}) //返回成功
 
 	// 记录成功心情记录事件
 	consts.Logger.WithFields(logrus.Fields{
@@ -129,6 +131,7 @@ func GetStatus(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "未登录或者令牌无效"})
 		return
 	}
+	//倒序返回
 	var status []model.Status
 	if err := config.DB.Where("user_id = ?", currentUserID).Order("created_at desc").Find(&status).Error; err != nil {
 		c.JSON(http.StatusOK, gin.H{"status": "[]model.Status{}"})

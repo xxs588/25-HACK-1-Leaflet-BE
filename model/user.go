@@ -27,11 +27,12 @@ type LoginRequest struct {
 // 心情状态表
 type Status struct {
 	gorm.Model
-	UserID    uint   `json:"user_id" gorm:"index:idx_user_time;not null"` // 用户ID
-	TagID     uint   `json:"tag_id" binding:"required" gorm:"not null"`   // 标签ID (1=困倦的早八, 2=自习室刷题, 等等)
-	Content   string `json:"content" binding:"required" gorm:"type:text"` // 内容
-	LeafColor string `json:"leaf_color"`                                  // 树叶颜色（自动生成）
-	Count     int64  `json:"count" gorm:"not null"`                       // 用户提交的状态总数
+	UserID         uint   `json:"user_id" gorm:"index:idx_user_time;not null"` // 用户ID
+	TagID          uint   `json:"tag_id" binding:"required" gorm:"not null"`   // 标签ID (1=困倦的早八, 2=自习室刷题, 这种)
+	Content        string `json:"content" binding:"required" gorm:"type:text"` // 内容
+	LeafColor      string `json:"leaf_color"`                                  // 树叶颜色
+	Count          int64  `json:"count" gorm:"not null"`                       // 用户连续提交的天数
+	AllRecordCount uint   `json:"all_record_count"`                            // 用户总提交次数
 }
 
 // 以下为情绪互动模块
@@ -47,8 +48,9 @@ type Solve struct {
 	gorm.Model
 	UserID    uint   `json:"user_id" gorm:"not null"`    // 外键，关联用户解决者
 	Solution  string `json:"solution" gorm:"not null"`   //解决方案
-	ProblemID string   `json:"problem_id" gorm:"not null"` //问题ID
+	ProblemID string `json:"problem_id" gorm:"not null"` //问题ID
 }
+
 // 鼓励话语 早 中 晚
 
 type EncouragementMorning struct {
@@ -62,6 +64,14 @@ type EncouragementAfternoon struct {
 type EncouragementEvening struct {
 	gorm.Model
 	Message string `json:"message" gorm:"not null"` // 鼓励话语
+}
+
+// 个人界面
+type Myself struct {
+	gorm.Model
+	UserID           uint   `json:"user_id" gorm:"uniqueIndex;not null"` // 用户ID，一个用户只能有一条记录
+	URL              string `json:"url" gorm:"type:varchar(255)"`
+	ProfilePictureID uint   `json:"profile_picture_id" gorm:"not null"`
 }
 
 // 密码加密
