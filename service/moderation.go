@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -306,66 +305,10 @@ func isBlockedByKeywords(content string) (bool, string) {
 		}
 	}
 	
-	// 检查重复字符模式（如：啊啊啊啊，操操操）
-	if hasExcessiveRepetition(lowerContent) {
-		return true, "内容包含过度重复的字符"
-	}
-	
-	// 检查是否主要是乱码或无意义字符
-	if isMostlyGarbage(content) {
-		return true, "内容包含大量无意义字符"
-	}
-	
 	return false, ""
 }
 
-// hasExcessiveRepetition 检查是否有过度重复的字符
-func hasExcessiveRepetition(content string) bool {
-	// 检查连续重复字符（如：啊啊啊啊，操操操）
-	repeatPattern := regexp.MustCompile(`(.)\1{3,}`)
-	if repeatPattern.MatchString(content) {
-		return true
-	}
-	
-	// 检查重复词汇模式
-	words := strings.Fields(content)
-	if len(words) > 3 {
-		wordCount := make(map[string]int)
-		for _, word := range words {
-			if len(word) > 1 { // 忽略单字符
-				wordCount[strings.ToLower(word)]++
-			}
-		}
-		
-		// 如果某个词汇重复超过3次，认为是垃圾内容
-		for _, count := range wordCount {
-			if count > 3 {
-				return true
-			}
-		}
-	}
-	
-	return false
-}
 
-// isMostlyGarbage 检查是否主要是乱码
-func isMostlyGarbage(content string) bool {
-	if len(content) < 5 {
-		return false
-	}
-	
-	// 计算非字母数字字符的比例
-	nonAlnumCount := 0
-	for _, r := range content {
-		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') ||
-			 r == ' ' || r == '\n' || r == '\t' || r == '，' || r == '。' || r == '！' || r == '？') {
-			nonAlnumCount++
-		}
-	}
-	
-	// 如果超过30%是特殊字符，认为是乱码
-	return float64(nonAlnumCount)/float64(len(content)) > 0.3
-}
 
 // min 返回两个整数中的较小值
 func min(a, b int) int {
