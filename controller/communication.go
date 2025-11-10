@@ -9,6 +9,7 @@ import (
 	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/config"
 	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/consts"
 	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/model"
+	"github.com/NCUHOME-Y/25-HACK-1-Leaflet-BE/service"
 	"github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
@@ -38,6 +39,38 @@ func UploadProblem(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "无效请求"})
 		return
 	}
+
+	// AI内容审核
+	moderationService := service.NewModerationService()
+	moderationResult, err := moderationService.ModerateContent(req.Context)
+	if err != nil {
+		consts.Logger.WithFields(logrus.Fields{
+			"username": req.SenderName,
+			"user_id":  user.ID,
+			"action":   "content_moderation_error",
+			"error":    err.Error(),
+		}).Error("内容审核服务出错")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "审核服务暂时不可用，请稍后再试"})
+		return
+	}
+
+	// 检查审核结果
+	if !moderationResult.IsApproved {
+		consts.Logger.WithFields(logrus.Fields{
+			"username":  req.SenderName,
+			"user_id":   user.ID,
+			"action":    "content_rejected",
+			"reason":    moderationResult.Reason,
+			"confidence": moderationResult.Confidence,
+		}).Warn("用户上传内容未通过审核")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":      "内容未通过审核",
+			"reason":     moderationResult.Reason,
+			"confidence": moderationResult.Confidence,
+		})
+		return
+	}
+
 	// 保存问题到数据库
 	if err := config.DB.Create(&req).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -52,9 +85,10 @@ func UploadProblem(c *gin.Context) {
 
 	// 记录成功事件
 	consts.Logger.WithFields(logrus.Fields{
-		"username": req.SenderName,
-		"user_id":  user.ID,
-		"action":   "user_upload_problem",
+		"username":   req.SenderName,
+		"user_id":    user.ID,
+		"action":     "user_upload_problem",
+		"moderation": "passed",
 	}).Info("用户上传问题成功")
 }
 
@@ -93,6 +127,37 @@ func UpdateProblem(c *gin.Context) {
 	// 绑定请求体
 	if err := c.ShouldBindJSON(&updateReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "无效请求"})
+		return
+	}
+
+	// AI内容审核
+	moderationService := service.NewModerationService()
+	moderationResult, err := moderationService.ModerateContent(updateReq.Context)
+	if err != nil {
+		consts.Logger.WithFields(logrus.Fields{
+			"username": user.Username,
+			"user_id":  user.ID,
+			"action":   "content_moderation_error",
+			"error":    err.Error(),
+		}).Error("内容审核服务出错")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "审核服务暂时不可用，请稍后再试"})
+		return
+	}
+
+	// 检查审核结果
+	if !moderationResult.IsApproved {
+		consts.Logger.WithFields(logrus.Fields{
+			"username":  user.Username,
+			"user_id":   user.ID,
+			"action":    "content_rejected",
+			"reason":    moderationResult.Reason,
+			"confidence": moderationResult.Confidence,
+		}).Warn("用户修改内容未通过审核")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":      "内容未通过审核",
+			"reason":     moderationResult.Reason,
+			"confidence": moderationResult.Confidence,
+		})
 		return
 	}
 
@@ -339,6 +404,37 @@ func ChangeProblem(c *gin.Context) {
 		return
 	}
 
+	// AI内容审核
+	moderationService := service.NewModerationService()
+	moderationResult, err := moderationService.ModerateContent(changeReq.Content)
+	if err != nil {
+		consts.Logger.WithFields(logrus.Fields{
+			"username": user.Username,
+			"user_id":  user.ID,
+			"action":   "content_moderation_error",
+			"error":    err.Error(),
+		}).Error("内容审核服务出错")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "审核服务暂时不可用，请稍后再试"})
+		return
+	}
+
+	// 检查审核结果
+	if !moderationResult.IsApproved {
+		consts.Logger.WithFields(logrus.Fields{
+			"username":  user.Username,
+			"user_id":   user.ID,
+			"action":    "content_rejected",
+			"reason":    moderationResult.Reason,
+			"confidence": moderationResult.Confidence,
+		}).Warn("用户修改内容未通过审核")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":      "内容未通过审核",
+			"reason":     moderationResult.Reason,
+			"confidence": moderationResult.Confidence,
+		})
+		return
+	}
+
 	// 验证问题是否存在且属于当前用户
 	var existingProblem model.Problem
 	if err := config.DB.First(&existingProblem, uint(problemID)).Error; err != nil {
@@ -418,6 +514,37 @@ func UploadSolve(c *gin.Context) {
 	// 绑定请求体
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "无效请求"})
+		return
+	}
+
+	// AI内容审核
+	moderationService := service.NewModerationService()
+	moderationResult, err := moderationService.ModerateContent(req.Solution)
+	if err != nil {
+		consts.Logger.WithFields(logrus.Fields{
+			"username": user.Username,
+			"user_id":  user.ID,
+			"action":   "content_moderation_error",
+			"error":    err.Error(),
+		}).Error("内容审核服务出错")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "审核服务暂时不可用，请稍后再试"})
+		return
+	}
+
+	// 检查审核结果
+	if !moderationResult.IsApproved {
+		consts.Logger.WithFields(logrus.Fields{
+			"username":  user.Username,
+			"user_id":   user.ID,
+			"action":    "content_rejected",
+			"reason":    moderationResult.Reason,
+			"confidence": moderationResult.Confidence,
+		}).Warn("用户解决方案未通过审核")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":      "内容未通过审核",
+			"reason":     moderationResult.Reason,
+			"confidence": moderationResult.Confidence,
+		})
 		return
 	}
 	
