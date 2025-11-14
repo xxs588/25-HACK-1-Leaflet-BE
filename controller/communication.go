@@ -319,48 +319,26 @@ func GetProblems(c *gin.Context) {
 		return
 	}
 
-	// 如果问题数量少于3条，返回所有问题
-	if len(allProblems) <= 3 {
-		c.JSON(http.StatusOK, gin.H{"problems": allProblems})
+	// 如果没有问题，返回空数组
+	if len(allProblems) == 0 {
+		c.JSON(http.StatusOK, gin.H{"problem": nil})
 		return
 	}
 
-	// 使用 crypto/rand 随机选择3个不重复的索引
-	indices := make([]int, 3)
-	for i := 0; i < 3; i++ {
-		for {
-			// 生成安全的随机数
-			nBig, err := rand.Int(rand.Reader, big.NewInt(int64(len(allProblems))))
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "随机数生成失败"})
-				return
-			}
-			idx := int(nBig.Int64())
-
-			// 检查索引是否已经使用过
-			duplicate := false
-			for j := 0; j < i; j++ {
-				if indices[j] == idx {
-					duplicate = true
-					break
-				}
-			}
-			if !duplicate {
-				indices[i] = idx
-				break
-			}
-		}
+	// 使用 crypto/rand 随机选择1个索引
+	nBig, err := rand.Int(rand.Reader, big.NewInt(int64(len(allProblems))))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "随机数生成失败"})
+		return
 	}
+	idx := int(nBig.Int64())
 
-	// 根据随机索引获取问题
-	problems := make([]model.Problem, 3)
-	for i, idx := range indices {
-		problems[i] = allProblems[idx]
-	}
+	// 获取随机选择的问题
+	problem := allProblems[idx]
 
-	c.JSON(http.StatusOK, gin.H{"problems": problems})
+	c.JSON(http.StatusOK, gin.H{"problem": problem})
 	consts.Logger.WithFields(logrus.Fields{
-		"action":   "get_problems",
+		"action":   "get_problem",
 		"user_id":  user.ID,
 		"username": user.Username,
 	}).Info("获取问题成功")

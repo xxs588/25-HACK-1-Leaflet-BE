@@ -31,7 +31,7 @@ WORKDIR /app
 
 # 从构建阶段复制二进制文件
 COPY --from=builder /app/main .
-#COPY --from=builder /app/.env.example .env
+COPY --from=builder /app/.env .env
 
 # 切换到非root用户
 USER appuser

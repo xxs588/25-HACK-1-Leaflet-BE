@@ -20,7 +20,7 @@ func Routes(rg *gin.Engine) {
 		// Mind 相关路由
 		mind := auth.Group("/mind")
 		{
-			mind.POST("/", controller.UploadProblem)
+			mind.POST("", controller.UploadProblem)
 			mind.GET("", controller.GetProblems)
 			mind.PUT("/:id", controller.ChangeProblem)
 			mind.DELETE("/:id", controller.DeleteProblem)
@@ -54,5 +54,5 @@ func Routes(rg *gin.Engine) {
 		{
 			username.PUT("/:id", controller.UpdateName)
 		}
-	}
+	}		
 }

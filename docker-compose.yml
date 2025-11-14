@@ -9,7 +9,7 @@ services:
         ports:
             - "8080:8080"
         env_file:
-            - .env.example
+            - .env
 
         depends_on:
             - mariadb
@@ -19,9 +19,9 @@ services:
     mariadb:
         image: mariadb:10.11
         ports:
-            - "3306:3306"
+            - "3339:3306"
         env_file:
-            - .env.example
+            - .env
         volumes:
             - mariadb_data:/var/lib/mariadb
         #command: --default-authentication-plugin=mysql_native_password
