@@ -614,3 +614,31 @@ func GetSolves(c *gin.Context) {
 		"solve_count":   len(solves),
 	}).Info("获取用户问题的解决方案成功")
 }
+func GetProblemsIdContext(c *gin.Context) {
+	// 从URL参数获取问题ID
+	problemIDStr := c.Param("id")
+	if problemIDStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "问题ID不能为空"})
+		return
+	}
+	// 将字符串转换为uint
+	problemID, err := strconv.ParseUint(problemIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的问题ID"})
+		return
+	}
+
+	// 查询问题
+	var problem model.Problem
+	if err := config.DB.First(&problem, uint(problemID)).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "问题不存在"})
+		return
+	}
+
+	// 仅返回 context
+	c.JSON(http.StatusOK, gin.H{"context": problem.Context})
+	consts.Logger.WithFields(logrus.Fields{
+		"action":     "get_problem_context_by_id",
+		"problem_id": problemID,
+	}).Info("获取问题context成功")
+}

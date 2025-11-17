@@ -24,6 +24,7 @@ func Routes(rg *gin.Engine) {
 			mind.GET("", controller.GetProblems)
 			mind.PUT("/:id", controller.ChangeProblem)
 			mind.DELETE("/:id", controller.DeleteProblem)
+			mind.GET("/:id", controller.GetProblemsIdContext)
 		}
 
 		// Status 相关路由
