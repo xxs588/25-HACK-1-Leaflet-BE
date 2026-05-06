@@ -1,23 +1,5 @@
-DB_HOST=mariadb
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=0d000721
-DB_NAME=leaflet_db
-DB_CHARSET=utf8mb4
-DB_PARSE_TIME=True
-DB_LOC=Local
-JWT_SECRET=dwadsdwasdw
-MARIADB_ROOT_PASSWORD=0d000721
-MARIADB_DATABASE=leaflet_db
 
-# 硅基流动 API 配置
-
-SILICONFLOW_API_KEY=sk-pydtqprkbdyuqcksihnsstvmokakodnnzctjquwnexlxnxgl
-SILICONFLOW_BASE_URL=https://api.siliconflow.cn/v1
-SILICONFLOW_MODEL=Qwen/Qwen2.5-72B-Instruct
-SILICONFLOW_VISION_MODEL=Qwen/Qwen2-VL-72B-Instruct
-
-# 🍃 Leaflet -一页（叶）知秋后端
+# 🍃 Leaflet -一页（叶）倾心后端
 
 一个基于 Go + Gin + GORM 的心情记录与社交互动平台后端服务。
 
